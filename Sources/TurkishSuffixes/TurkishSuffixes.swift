@@ -83,63 +83,37 @@ public struct TurkishSuffixes {
             switch self {
             case .kelimenin:
                 return "n"
-            case .kelimeye:
+            case .kelimeye, .kelimeyi, .kelimeyle:
                 return "y"
-            case .kelimeyi:
-                return "y"
-            case .kelimede:
+            default:
                 return ""
-            case .kelimeden:
-                return ""
-            case .kelimeyle:
-                return "y"
             }
         }
         var preVowel:String {
             switch self {
-            case .kelimenin:
-                return ""
-            case .kelimeye:
-                return ""
-            case .kelimeyi:
-                return ""
-            case .kelimede:
-                return "d"
-            case .kelimeden:
+            case .kelimede, .kelimeden:
                 return "d"
             case .kelimeyle:
                 return "l"
+            default:
+                return ""
             }
         }
         var preVowelHard:String {
             switch self {
-            case .kelimenin:
-                return ""
-            case .kelimeye:
-                return ""
-            case .kelimeyi:
-                return ""
-            case .kelimede:
-                return "t"
-            case .kelimeden:
+            case .kelimede, .kelimeden:
                 return "t"
             case .kelimeyle:
                 return "l"
+            default:
+                return ""
             }
         }
         var postVowel:String {
             switch self {
-            case .kelimenin:
+            case .kelimenin, .kelimeden:
                 return "n"
-            case .kelimeye:
-                return ""
-            case .kelimeyi:
-                return ""
-            case .kelimede:
-                return ""
-            case .kelimeden:
-                return "n"
-            case .kelimeyle:
+            default:
                 return ""
             }
         }
