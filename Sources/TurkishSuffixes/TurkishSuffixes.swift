@@ -1,6 +1,6 @@
 import Foundation
 public struct TurkishSuffixes {
-    enum TurkishVowel: String, CustomStringConvertible {
+    enum TurkishVowel: String, CustomStringConvertible, CaseIterable {
         var description: String {
             return self.rawValue
         }
@@ -17,69 +17,35 @@ public struct TurkishSuffixes {
         var isThick: Bool {
             self == .a || self == .ı || self == .o || self == .u
         }
-        var kelimeyi: TurkishVowel {
-            switch self {
-            case let self where self.isThick && self.isFlat:
-                return .ı
-            case let self where self.isThin && self.isFlat:
-                return .i
-            case let self where self.isThick && self.isRound:
-                return .u
-            case let self where self.isThin && self.isRound:
-                return .ü
+        func harmonicVowel(_ suffix: TurkishSuffix)->TurkishVowel {
+            switch suffix {
+            case .kelimeyi, .kelimenin:
+                switch self {
+                case let self where self.isThick && self.isFlat:
+                    return .ı
+                case let self where self.isThin && self.isFlat:
+                    return .i
+                case let self where self.isThick && self.isRound:
+                    return .u
+                case let self where self.isThin && self.isRound:
+                    return .ü
+                default:
+                    return .i
+                }
             default:
-                return .i
-            }
-        }
-        var kelimenin: TurkishVowel {
-            switch self {
-            case .a, .ı:
-                return .ı
-            case .e, .i:
-                return .i
-            case .o, .u:
-                return .u
-            case .ü, .ö:
-                return .ü
-            }
-        }
-        var kelimeye: TurkishVowel {
-            switch self {
-            case let self where self.isThick:
-                return .a
-            default:
-                return .e
-            }
-        }
-        var kelimede: TurkishVowel {
-            switch self {
-            case let self where self.isThick:
-                return .a
-            default:
-                return .e
-            }
-        }
-        var kelimeden: TurkishVowel {
-            switch self {
-            case let self where self.isThick:
-                return .a
-            default:
-                return .e
-            }
-        }
-        var kelimeyle: TurkishVowel {
-            switch self {
-            case let self where self.isThick:
-                return .a
-            default:
-                return .e
+                switch self {
+                case let self where self.isThick:
+                    return .a
+                default:
+                    return .e
+                }
             }
         }
     }
     
     enum TurkishSuffix: String, CaseIterable {
-        case kelimenin,kelimeye,kelimeyi,kelimede,kelimeden,kelimeyle
-        var isLastVowel:String {
+        case kelimeye,kelimeyi,kelimenin,kelimeyle,kelimede,kelimeden
+        var consonantSupport:String {
             switch self {
             case .kelimenin:
                 return "n"
@@ -138,30 +104,20 @@ public struct TurkishSuffixes {
         }
     }
     func addTurkishSuffix(_ string: String, _ suffix: TurkishSuffix, _ isProperName: Bool = false, _ apostroph: String = "'") -> String {
-        guard let lastTurkishVowel = string.last(where: ["a","e","ı","i","o","ö","u","ü"].contains) else {return string}
-        guard let lv = TurkishVowel(rawValue: String(lastTurkishVowel)) else { return string}
-        var harmonicVowel:String {
-            switch suffix {
-            case .kelimede:
-                return lv.kelimede.rawValue
-            case .kelimeden:
-                return lv.kelimeden.rawValue
-            case .kelimenin:
-                return lv.kelimenin.rawValue
-            case .kelimeye:
-                return lv.kelimeye.rawValue
-            case .kelimeyi:
-                return lv.kelimeyi.rawValue
-            case .kelimeyle:
-                return lv.kelimeyle.rawValue
-            }
-        }
-        let isLastCharVowel = ["a","e","ı","i","o","ö","u","ü"].contains(string.last)
-        let endsWithHardConsonant = ["ç","f","h","k","p","s","ş","t"].contains(string.last)
-        
-        let softenTheRoot = (suffix == .kelimeye || suffix == .kelimenin || suffix == .kelimeyi)
-        && ( string.count <= 6 ?["p", "ç", "t", "k"].contains(string.last) : ["p", "ç", "k"].contains(string.last))
-        && !isProperName && string.count > 3;
+        let trVowels = TurkishVowel.allCases.map {Character($0.rawValue)}
+        let trHardCons = TurkishHardConsonant.allCases.map{Character($0.rawValue)}
+        guard let lastCharacter = string.last else {return string}
+        guard let lastTurkishVowel = string.last(where: trVowels.contains) else {return string}
+        guard let lastVowel = TurkishVowel(rawValue: String(lastTurkishVowel)) else { return string}
+        let isLastCharVowel: Bool = trVowels.contains(lastCharacter)
+        let endsWithHardConsonant: Bool = trHardCons.contains(lastCharacter)
+
+        let softenTheRoot =
+        !isProperName
+        && (suffix == .kelimeye || suffix == .kelimenin || suffix == .kelimeyi)
+        && !(string.count == 4 && Array(string).suffix(2) == ["n","k"])
+        && ( string.count <= 6 ?["p", "ç", "t", "k"].contains(lastCharacter) : ["p", "ç", "k"].contains(lastCharacter))
+        &&  string.count > 3;
         
         var root = string
         if(softenTheRoot) {
@@ -170,9 +126,9 @@ public struct TurkishSuffixes {
         }
         let result = root +
         "\(isProperName ? apostroph : "")" +
-        "\(isLastCharVowel ? suffix.isLastVowel : "")" +
+        "\(isLastCharVowel ? suffix.consonantSupport : "")" +
         "\(endsWithHardConsonant ? suffix.preVowelHard : suffix.preVowel)" +
-        harmonicVowel +
+        lastVowel.harmonicVowel(suffix).rawValue +
         suffix.postVowel
         
         return result

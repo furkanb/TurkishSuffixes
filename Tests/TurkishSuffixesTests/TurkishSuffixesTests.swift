@@ -6,46 +6,62 @@ final class TurkishSuffixesTests: XCTestCase {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
-        let testStrings = ["başak", "Paşa", "kedi", "kuzu", "kurt", "kağıt", "zaman", "cemiyet"]
+        let testStrings = ["top","başak", "Paşa", "kedi", "kuzu", "kurt", "kağıt", "zaman", "cemiyet", "tank"]
 
         struct TurkishSuffixesTest {
             var suffix: TurkishSuffixes.TurkishSuffix
-            let testStrings = ["başak", "Paşa", "kedi", "kuzu", "kurt", "kağıt", "zaman", "cemiyet"]
+            let testStrings = ["top","başak", "Paşa", "kedi", "kuzu", "kurt", "kağıt", "zaman", "cemiyet", "tank"]
             var testAssertion: [String] {
                 switch suffix {
                 case .kelimenin:
-                    return ["başağın", "Paşa'nın", "kedinin", "kuzunun", "kurdun", "kağıdın", "zamanın", "cemiyetin"]
+                    return ["topun", "başağın", "Paşa'nın", "kedinin", "kuzunun", "kurdun", "kağıdın", "zamanın", "cemiyetin", "tankın"]
                 case .kelimeye:
-                    return ["başağa", "Paşa'ya", "kediye", "kuzuya", "kurda", "kağıda", "zamana", "cemiyete"]
+                    return ["topa", "başağa", "Paşa'ya", "kediye", "kuzuya", "kurda", "kağıda", "zamana", "cemiyete", "tanka"]
                 case .kelimeyi:
-                    return ["başağı", "Paşa'yı", "kediyi", "kuzuyu", "kurdu", "kağıdı", "zamanı", "cemiyeti"]
+                    return ["topu", "başağı", "Paşa'yı", "kediyi", "kuzuyu", "kurdu", "kağıdı", "zamanı", "cemiyeti", "tankı"]
                 case .kelimede:
-                    return ["başakta", "Paşa'da", "kedide", "kuzuda", "kurtta", "kağıtta", "zamanda", "cemiyette"]
+                    return ["topta", "başakta", "Paşa'da", "kedide", "kuzuda", "kurtta", "kağıtta", "zamanda", "cemiyette", "tankta"]
                 case .kelimeden:
-                    return ["başaktan", "Paşa'dan", "kediden", "kuzudan", "kurttan", "kağıttan", "zamandan", "cemiyetten"]
+                    return ["toptan", "başaktan", "Paşa'dan", "kediden", "kuzudan", "kurttan", "kağıttan", "zamandan", "cemiyetten", "tanktan"]
                 case .kelimeyle:
-                    return ["başakla", "Paşa'yla", "kediyle", "kuzuyla", "kurtla", "kağıtla", "zamanla", "cemiyetle"]
+                    return ["topla", "başakla", "Paşa'yla", "kediyle", "kuzuyla", "kurtla", "kağıtla", "zamanla", "cemiyetle", "tankla"]
                 }
             }
         }
-        let sentences = ["özelliği", "imrenmek", "hatırlamak", "karar kılmak", "çekinmek", "yol almak"]
-        
+        func sentenceEnding(_ suffix: TurkishSuffixes.TurkishSuffix) -> String {
+            switch suffix {
+            case .kelimeye:
+                return "imrenmek"
+            case .kelimeyi:
+                return "düşünmek"
+            case .kelimenin:
+                return "farkı"
+            case .kelimeyle:
+                return "sevinmek"
+            case .kelimede:
+                return "karar kılmak"
+            case .kelimeden:
+                return "çekinmek"
+            }
+        }
         
         TurkishSuffixes.TurkishSuffix.allCases.enumerated().forEach { (index, suffix) in
             let testCheck = TurkishSuffixesTest(suffix: suffix)
+            print("--")
             testStrings.enumerated().forEach { (strIndex, str) in
-                print("--")
                 let testCase = TurkishSuffixes.init().addTurkishSuffix(str, suffix, str.first?.isUppercase ?? false)
                 XCTAssertEqual(testCase, testCheck.testAssertion[strIndex])
-                print(testCase, sentences[index])
+                print(testCase, sentenceEnding(suffix))
             }
-            print("\n")
         }
 
-        print("|",TurkishSuffixes.TurkishSuffix.allCases.map{$0.rawValue}.joined(separator: " | "),"|")
-        print("|",TurkishSuffixes.TurkishSuffix.allCases.map{_ in " --- "}.joined(separator: " | "),"|")
+        print("| |",TurkishSuffixes.TurkishSuffix.allCases.map{$0.rawValue}.joined(separator: " | "),"|")
+        print("| --- |",TurkishSuffixes.TurkishSuffix.allCases.map{_ in " --- "}.joined(separator: " | "),"|")
             testStrings.enumerated().forEach { (strIndex, str) in
-                print("|",TurkishSuffixes.TurkishSuffix.allCases.map { TurkishSuffixes.init().addTurkishSuffix(str,$0, str.first?.isUppercase ?? false)}.joined(separator: " | "),"|")
+                print("|",str,"|",TurkishSuffixes.TurkishSuffix.allCases.map {
+                    let harmonized =  TurkishSuffixes.init().addTurkishSuffix(str,$0, str.first?.isUppercase ?? false)
+                    return harmonized /* + " " + sentenceEnding($0)*/
+                }.joined(separator: " | "),"|")
             }
     }
 }
