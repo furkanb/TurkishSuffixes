@@ -115,8 +115,9 @@ public struct TurkishSuffixes {
         let softenTheRoot =
         !isProperName
         && (suffix == .kelimeye || suffix == .kelimenin || suffix == .kelimeyi)
-        && !(string.count == 4 && Array(string).suffix(2) == ["n","k"])
-        && ( string.count <= 6 ?["p", "ç", "t", "k"].contains(lastCharacter) : ["p", "ç", "k"].contains(lastCharacter))
+        && !(string.count == 4 && Array(string).suffix(2) == ["n", "k"])
+        && (string.count <= 6 ? ["p", "ç", "t", "k"].contains(lastCharacter) : ["p", "ç", "k"].contains(lastCharacter))
+        && lastVowel != .e && lastVowel != .ı && lastVowel != .u
         &&  string.count > 3;
         
         var root = string
